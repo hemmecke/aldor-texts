@@ -1,0 +1,1744 @@
+%% This work is licensed under a Creative Commons
+%% Attribution-ShareAlike 3.0 Unported License.
+%% http://creativecommons.org/licenses/by-sa/3.0/
+
+%% Copyright 2007-2013  Ralf Hemmecke <ralf@hemmecke.org>
+
+%% This material has initially been prepared for the
+%% Axiom Workshop 2007 (June 14-16, 2007, Hagenberg, Austria)
+%% http://www.risc.jku.at/conferences/summer2007/
+
+%--rhx: Use 'make beamer' or 'make article' in order to compile this
+%--rhx: file. The MAKE command will provide an appropriate 
+%--rhx: '\documentclass' line, because we want to make an article or a
+%--rhx: beamer presentation out of this file.
+
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+\mode<article>
+{
+  \usepackage{hyperref}
+  \usepackage{fullpage}
+}
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+\title{Introduction to Aldor}
+
+\author[Ralf Hemmecke]%
+       {Ralf Hemmecke \\\footnotesize{\texttt{<ralf@hemmecke.org>}}}
+\date{14-Jun-2007\\
+  \footnotesize{This work is licensed under CC-BY-SA-3.0.\\
+    \url{http://creativecommons.org/licenses/by-sa/3.0/}}%
+}
+
+\subject{Introduction to Aldor}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+\lstset{language={}}
+\lstnewenvironment{myverbatim}%
+  {\lstset{delim=[il][\color{blue}]&}\footnotesize\ttfamily}%
+  {}
+\lstnewenvironment{myverbatim2}%
+  {\lstset{delim=[is][\color{red}]&&}\footnotesize\ttfamily}%
+  {}
+\usepackage{verbatim}
+\newenvironment{smallverbatim}%
+   {\footnotesize\verbatim}%
+   {\endverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle
+\begin{frame}<presentation>
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle<presentatio>{Outline}
+  \tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{General remarks}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Historical Remarks}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Aldor has its origin in the Computer Algebra System (CAS) Scratchpad
+developed by IBM.
+%
+While Scratchpad I (1971) was in concept similar to Reduce, its
+successor Scratchpad II (1977) introduced types to computer algebra.
+The implementation of Scratchpad II started in 1982 at IBM.
+%
+In 1991 Scratchpad II was sold to NAG and renamed to Axiom.
+
+Axiom provides a language in order to use and extend its capabilities.
+In fact, there are now two languages supported by Axiom. These
+languages are mostly identical, but they differ in a few minor
+details.
+
+The first language is the command language that Axiom understands at
+its input prompt. One can collect such commands in \texttt{.input}
+files and use \texttt{)read} in order to read them into Axiom.
+%
+This language is mainly targetted for an interpreter session.
+
+The second language is called SPAD (abbreviation of ScratchPAD) and is
+used to write extensions of the Axiom library. There is a SPAD
+compiler that compiles \texttt{.spad} files into object files.
+
+Axiom is different from other CAS, since it has no concept of kernel
+features written in a highly optimized way (for example written in C)
+and extension features (written in an interpreted language). Rather
+Axiom's Algebra library is completely written in SPAD and any
+extension of the Algebra code runs at the same (compiled) speed as the
+Algebra code itself.
+
+However, a main disadvantage of Axiom was that its language had never
+been rigorously defined. That became the birth of Aldor. Aldor,
+started under the name $\mathrm{A}^\sharp$ at IBM and was later renamed to
+AxiomXL (Axiom extension language). Now it is know under the name
+Aldor and hosted at \url{http://www.aldor.org}.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}<presentation>
+  \frametitle{Origin of Aldor}
+  \begin{itemize}
+  \item ScratchPad I (1971) %Jenks
+    % see \cite[p. 21]{Doye:PhD:1997}
+  \item ScratchPad II (1977, %Jenks, then Davenport and Barton
+    1982) %implementation started
+  \item Axiom (1991)
+  \item $\mathrm{A}^\sharp$ $\longrightarrow$ AxiomXL $\longrightarrow$ Aldor
+  \item IBM $\longrightarrow$ NAG $\longrightarrow$ \texttt{www.aldor.org}
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{What is Aldor?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{\textbf{A} \textbf{L}anguage for \textbf{D}escribing
+    \textbf{O}bjects and \textbf{R}elations}
+  \begin{itemize}
+  \item Aldor is an ordinary programming language.
+  \item design goals: generality, composability, efficiency
+  \item combines object-oriented and functional programming styles 
+  \item emphasis on uniform handling of functions and types,\\
+    types and functions are \alert{first class}, i.e.:
+    \begin{itemize}
+    \item usable in function arguments
+    \item constructable at runtime
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Distinguished Features}
+  \begin{itemize}
+  \item parametric polymorphism, dependent types
+  \item post facto type extensions
+  \item conditional exports
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Aldor Compiler}
+
+  Aldor compiler can produce
+  \begin{itemize}
+  \item stand-alone executable programs
+  \item object libraries in native OS formats
+  \item portable byte code
+  \item C and LISP code
+  \end{itemize}
+
+  Aldor code can be linked with C and Fortran code.
+\end{frame}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Aldor Distribution}
+
+  Distribution from aldor.org includes
+  \begin{itemize}
+  \item compiler for Aldor language
+  \item interpreted, interactive environment for the Aldor language
+  \item libaldor and libalgebra libraries
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle{Aldor Properties}
+
+  \begin{itemize}
+  \item Aldor is a statically typed language
+  \item everything has a type
+    \begin{enumerate}
+    \item 5 is of type \texttt{Integer}
+    \item \texttt{Integer} is of type \texttt{IntegerType}
+    \item \texttt{IntegerType} is of type \texttt{Category}
+    \end{enumerate}
+  \item 3 type levels
+    \begin{enumerate}
+    \item object level (variables, functions)
+    \item domain and package level
+    \item category level
+    \end{enumerate}
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Objects, Domains, Packages, Categories}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Object Level}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{myverbatim}
+> aldor -gloop
+\end{myverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions}
+  Functions can be constructed in the following way.
+
+\begin{myverbatim}
+%3 >> &succ(n: MachineInteger): MachineInteger == n + 1
+Defined succ @ (n: MachineInteger) -> MachineInteger
+\end{myverbatim}
+
+  This is (nearly) equivalent to \ldots
+\begin{myverbatim}
+%4 >> &pred == (n: MachineInteger): MachineInteger +-> n-1
+Defined pred @ (n: MachineInteger) -> MachineInteger
+\end{myverbatim}
+In contrast to variable assignment (\texttt{:=}), the double equals
+sign (\texttt{==}) defines constants.
+\end{frame}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions (cont.)}
+
+  Functions can be assigned to variables.
+
+\only<article>{In interpreter mode one must initialize the
+  RandomNumberGenerator. If the code is compiled into an object file
+  then such an initialization is done automatically.}
+\begin{myverbatim}
+%5 >> &import from MachineInteger, RandomNumberGenerator
+%6 >> &seed(randomGenerator 0, 123456789)
+123456789 @ MachineInteger
+
+%7 >> &foo := if odd? random() then succ else pred
+  () @ (n: MachineInteger) -> MachineInteger
+
+%8 >> &foo 1
+2 @ MachineInteger
+
+%9 >> &bar := if odd? random() then succ else pred
+  () @ (n: MachineInteger) -> MachineInteger
+
+%10 >> &bar 1
+0 @ MachineInteger
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions (cont.)}
+
+  Function types must match.
+\begin{myverbatim}
+%11 >> &foo "abc"
+       ....^
+[L11 C5] #1 (Error) Argument 1 of `foo' did not match any
+possible parameter type.
+    The rejected type is String.
+    Expected type MachineInteger.
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions (cont.)}
+
+  Let's try concatenation of strings, given through the function
+  \texttt{+}.
+\begin{myverbatim}
+%12 >> &"abc" + 1
+       ^
+[L12 C1] #1 (Error) Argument 1 of `+' did not match any
+possible parameter type.
+    The rejected type is String.
+    Expected type MachineInteger.
+\end{myverbatim}
+
+In Aldor, \texttt{0} and \texttt{1} can be used as identifiers.
+\begin{myverbatim}
+% 13 >> &1:="One"
+One @ String
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions (cont.)}
+  Let's check what we have currently in scope.
+\begin{myverbatim}
+%14 >> &1
+       ^
+[L14 C1] #1 (Error) Have determined 2 possible types for
+the expression.
+        Meaning 1: MachineInteger
+        Meaning 2: String
+\end{myverbatim}
+
+\begin{myverbatim}
+%15 >> &+
+       ^
+[L15 C1] #1 (Error) Have determined 2 possible types for
+the expression.
+        Meaning 1: (String, String) -> String
+        Meaning 2: (MachineInteger, MachineInteger)
+                                    -> MachineInteger
+\end{myverbatim}
+\begin{myverbatim}
+%16 >> &"abc" + 1
+abcOne @ String
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Recursive Functions}
+
+  Aldor allows to define recursive functions.
+\begin{myverbatim}
+%17 >> &fib(n: MachineInteger): MachineInteger == {
+...    &    n=0 or n=1 => 1;
+...    &    fib(n-1) + fib(n-2);
+...    &  }
+Defined fib @ (n: MachineInteger) -> MachineInteger
+
+%18 >> &fib 5
+8 @ MachineInteger
+\end{myverbatim}
+\end{frame}
+\begin{myverbatim}
+%19 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Functions>>=
+aldor -gloop
+succ(n: MachineInteger): MachineInteger == n + 1
+pred == (n: MachineInteger): MachineInteger +-> n-1
+import from MachineInteger, RandomNumberGenerator
+seed(randomGenerator 0, 123456789)
+foo := if odd? random() then succ else pred
+foo 1
+bar := if odd? random() then succ else pred
+bar 1
+foo "abc"
+"abc" + 1
+1:="One"
+1
++
+"abc" + 1
+fib(n: MachineInteger): MachineInteger == {
+	n=0 or n=1 => 1;
+	fib(n-1) + fib(n-2);
+}
+fib 5
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Functions as arguments}
+  Functions can be arguments to other functions.
+\begin{myverbatim}
+> &aldor -gloop
+%3 >> &baz(
+...   &    f: MachineInteger -> MachineInteger,
+...   &    n: MachineInteger
+...   &  ): MachineInteger == {
+...   &    f f n
+...   &  }
+Defined baz @ (f: MachineInteger -> MachineInteger, 
+n: MachineInteger) -> MachineInteger
+\end{myverbatim}
+\only<article>{If the interpreter detects that a line is incomplete
+  after pressing ENTER, e.g. there are open parentheses that are not
+  closed, then it continues the current line by showing three dots.}
+
+\begin{myverbatim}
+%4 >> &import from MachineInteger
+%6 >> &baz(factorial, 3)
+720 @ MachineInteger
+\end{myverbatim}
+\end{frame}
+\begin{myverbatim}
+%7 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Functions2>>=
+aldor -gloop
+baz(
+  f: MachineInteger -> MachineInteger,
+  n: MachineInteger
+): MachineInteger == {
+  f f n
+}
+import from MachineInteger
+baz(factorial, 3)
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Function composition}
+  It is easy to define composition of functions.
+\begin{myverbatim}
+%3 >> &macro I == MachineInteger;
+%4 >> &import from I;
+
+%5 >> &double(i: I): I == i+i;
+%6 >> &succ(i: I): I == i+1;
+
+%7 >> &(f: I->I) * (g: I->I): I->I == (i: I): I +-> f g i;
+
+%8 >> &foo := double * succ;
+%9 >> &bar := succ * double;
+
+%10 >> &foo 1
+4 @ MachineInteger
+
+%11 >> &bar 1
+3 @ MachineInteger
+\end{myverbatim}
+\end{frame}
+\begin{myverbatim}
+%12 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Functions3>>=
+aldor -gloop
+macro I == MachineInteger;
+import from I;
+double(i: I): I == i+i;
+succ(i: I): I == i+1;
+(f: I->I) * (g: I->I): I->I == (i: I): I +-> f g i;
+foo := double * succ;
+bar := succ * double;
+foo 1
+bar 1
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Domains and Categories}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Algebraic Structures}
+
+  \begin{itemize}
+  \item Semigroup: $(H, +)$
+  \item Monoid: $(M, (+, 0))$
+  \item Group: $(G, (+, -, 0))$
+  \item Ring: $(R, (+, -, 0, \cdot))$
+  \item Ring with 1: $(R, (+, -, 0, \cdot, 1))$
+  \end{itemize}
+
+  \begin{itemize}
+  \item Universal Algebra: $(A, (f_i)_{i\in I})$ where $f_i: A^{n_i}\to A$
+  \item Multisorted Algebra: $((A_j)_{j\in J}, (g_i)_{i\in I})$
+  \end{itemize}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Example: Aldor Domain}
+\begin{myverbatim2}
+Int: with {
+  &+: (%, %) -> %;&
+  &0: %;&
+  &1: %;&
+} == add {
+  Rep == Integer;
+  import from Rep;
+  &(x: %) + (y: %): %& == per(rep(x) + rep(y));
+  &0: %& == per 0;
+  &1: %& == per 1;
+}
+\end{myverbatim2}
+\begin{itemize}
+\item $\verb'Int'=(\verb'%', \textcolor{red}{(+, 0, 1)})$
+\item $\verb'Rep'=((\verb'Integer',\verb'Boolean'), (+, -, \cdot, 0, 1, \ldots))$
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Example: Aldor Domain}
+\begin{myverbatim2}
+MyInt: with {
+  &+: (%, %) -> %;&
+  &0: %;&
+  &1: %;&
+  &zero?: % -> Boolean;&
+} == add {
+  Rep == Integer;
+  import from Rep;
+  (x: %) + (y: %): % == per(rep(x) + rep(y));
+  0: % == per 0;
+  1: % == per 1;
+  zero?(x: %): Boolean == rep(x)=0;
+}
+\end{myverbatim2}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Example: Extended Aldor Domain}
+\begin{myverbatim}
+extend MyInt: with {
+  &succ: % -> %;
+} == add {
+  succ(x: %): % == x + 1;
+}
+\end{myverbatim}
+\begin{itemize}
+\item $((\verb'MyInt', \verb'Boolean'), ({\color{red}+, 0, 1, \verb'zero?'}))$
+\item $((\verb'MyInt', \verb'Boolean'), (+, 0, 1, \verb'zero?',{\color{blue}\verb'succ'}))$
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+%\begin{frame}[fragile]
+\frametitle{Post-facto Extensions}
+\begin{itemize}
+\item Domains can later be extended to belong to a new category.
+\item Demonstrate with \verb'Integer' in \verb'aldor -gloop' with
+  libaldor and libalgebra.
+%\begin{smallverbatim}
+aldor -gloop                     aldor -gloop
+#include "aldor"                 #include "algebra"
+#include "aldorinterp"           #include "aldorinterp"
+Integer has Monoid               Integer has Monoid
+Integer                          Integer
+#quit                            #quit
+%\end{smallverbatim}
+\end{itemize}
+%\end{frame}
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Categories}
+\begin{itemize}
+\item A category specifies the interface of a class.
+
+\item General syntax
+\begin{myverbatim}
+with {  0: %;  *: (Integer, %) -> %; }
+\end{myverbatim}
+
+\item Named categories
+\begin{myverbatim}
+define MyCat: Category == with { ... }
+\end{myverbatim}
+
+\item Multiple inheritance
+\begin{myverbatim}
+Join(CatA, CatB) with { ... }
+\end{myverbatim}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Domains}
+\begin{itemize}
+\item A domain realizes the interface given through a category.
+\item General syntax
+\begin{myverbatim}
+add {
+  Rep == Record(real: Integer, imag: Integer);
+  import from Rep, Integer;
+  0: % == per [0, 0];
+  re(a: %): Integer == rep(a).real;
+  im(a: %): Integer == rep(a).imag;
+}
+\end{myverbatim}
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Categories + Domains}
+\begin{myverbatim}
+define ComplexCategory: Category == with {
+  0: %;
+  re: % -> Integer;
+}
+
+ComplexDomain: ComplexCategory == add {
+  Rep == Record(real: Integer, imag: Integer);
+  import from Rep, Integer;
+  0: % == per [0, 0];
+  re(a: %): Integer == rep(a).real;
+  &im(a: %): Integer == rep(a).imag;
+}
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Inheritance and Data Hiding}
+\begin{myverbatim}
+define ComplexCategory: Category == with {
+  0: %;
+  re: % -> Integer;
+}
+
+MyComplex: ComplexCategory == Integer add {
+  Rep == Integer;
+  import from Rep;
+  re(a: %): Integer == rep(a);
+}  
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{comment}
+%\begin{frame}[fragile]
+\frametitle{Packages}
+\begin{itemize}
+\item A package is a domain that has no \verb'%'.
+\begin{myverbatim}
+PoweringPackage(R: Monoid): with {
+  binaryExponentiation: (R, Integer) -> R
+} == add {
+  binaryExponentiation(x: R, n: Integer): R == {
+    ...
+  }
+}
+\end{myverbatim}
+\end{itemize}
+%\end{frame}
+%\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Default Implementations}
+\begin{myverbatim}
+define PrimitiveType: Category == with {
+    =: (%, %) -> Boolean;
+    ~=: (%, %) -> Boolean;
+  &default {
+  &  (a:%) ~= (b:%):Boolean == ~(a = b);
+  &}
+}
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Conditional Exports}
+
+\begin{myverbatim}
+Partial(T:Type): with {
+  &if T has PrimitiveType then PrimitiveType;
+  ...
+} == add {
+  ...
+  &if T has PrimitiveType then {
+    (x:%) = (y:%):Boolean == {
+      import from T;
+      fy? := failed? y;
+      failed? x => fy?;
+      ~fy? and retract x = retract y;
+    }
+  &}
+}
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Domain-dependent (higher order) Functions}
+
+\begin{itemize}
+\item \alert{type} of result/input depends on \alert{value} of input
+\item $(a: A) \times B(a) \to C(a)$
+\item identity: (n: Integer, R: Ring) -> Matrix(n, n, R)
+\end{itemize}
+\begin{myverbatim}
+#include "algebra"
+#include "aldorio"
+mygcd(R: EuclideanDomain)(a: R, b: R): R == {
+  R has Field => if zero? a and zero? b then 0 else 1;
+  while not zero? b repeat { (a, b) := (b, a rem b) }
+  return a;
+}
+Q ==> Fraction Integer;
+import from Integer, Q;
+g := mygcd Integer;
+stdout << g(4,6) << newline;
+stdout << mygcd(Q)(4::Q,6::Q) << newline;
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+\frametitle{Recursively Defined Domain-valued Functions}
+
+Example from Aldor-Combinat:
+
+\begin{myverbatim2}
+&T&(L: LT): CS L == (&X + T*T&)(L) add;
+egs := generatingSeries $ T(Integer);
+n := count(egs, 5);
+\end{myverbatim2}%$
+
+Can define mutually recursive types
+\begin{myverbatim2}
+&A&(L: LT): CS L == (&E + X*B*B*B&)(L) add;
+&B&(L: LT): CS L == (&E + X*A*A&)(L) add;
+ogs: isomorphismTypeGeneratingSeries $ A(String);
+m := count(ogs, 6);
+\end{myverbatim2}%$
+
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Collections, Iterations, Generators, Streams}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Collections}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+There are already some collections implemented in the Aldor library,
+for example, 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Collections}
+\begin{itemize}
+\item {List}, SortedList
+\item {Array}, PrimitiveArray,
+\item {HashTable}, SortedAssociationSet,
+\item Set, SortedSet,
+\item etc.
+\end{itemize}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lists can be created in different ways.
+\begin{myverbatim}
+%3 >> macro I == MachineInteger;
+%4 >> import from I, List I;
+\end{myverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Collections (cont.)}
+
+Lists can be given by their elements.
+\begin{myverbatim}
+%5 >> &u1 := [2,3,5,7,11,13,17,19]
+[2,3,5,7,11,13,17,19] @ List(MachineInteger)
+\end{myverbatim}
+They can also be given through iterators.
+\begin{myverbatim}
+%6 >> &u2 := [2*i for i in 1..4]
+[2,4,6,8] @ List(MachineInteger)
+\end{myverbatim}
+Counting downwards is also OK.
+\begin{myverbatim}
+%7 >> &u3 := [2*i for i in 9 .. -9 by -2]
+[18,14,10,6,2,-2,-6,-10,-14,-18] @ List(MachineInteger)
+\end{myverbatim}
+Additionally one can include a ``such that'' expression which includes
+the value only if the condition is true.
+\begin{myverbatim}
+%8 >> &u4 := [5*i for i in 20 .. -20 by -3 | bit?(i,2)]
+[100,70,25,-5,-20,-50,-95] @ List(MachineInteger)
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Collections (cont.)}
+
+One can iterate over lists.
+\begin{myverbatim}
+%9 >> &[3*i for i in u1 | not(i=11)]
+[6,9,15,21,39,51,57] @ List(MachineInteger)
+\end{myverbatim}
+Or access list elements through their index.
+\begin{myverbatim}
+%10 >> &[u3.(2*i) for i in 1..3]
+[14,6,-2] @ List(MachineInteger)
+\end{myverbatim}
+Go in parallel through two lists.
+\begin{myverbatim}
+%11 >> &[a+b for a in [1, 4, 0] for b in [2,5,7,9,11]]
+[3,9,7] @ List(MachineInteger)
+\end{myverbatim}
+Note that the result is as long as the shortest list.
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Collections (cont.)}
+
+A list of lists is also OK.
+\begin{myverbatim}
+%12 >> &v1: List List I := [u1,u2]
+[[2,3,5,7,11,13,17,19],[2,4,6,8]] @ List(List(MachineInteger))
+\end{myverbatim}
+One can also have arrays of lists.
+\begin{myverbatim}
+%13 >> &a1: Array List I := [u1,u2]
+[[2,3,5,7,11,13,17,19],[2,4,6,8]] @ Array(List(MachineInteger))
+\end{myverbatim}
+Note that elements in the list must have the same type.
+\end{frame}
+\begin{myverbatim}
+%14 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Collections>>=
+aldor -gloop
+macro I == MachineInteger;
+import from I, List I;
+u1 := [2,3,5,7,11,13,17,19]
+u2 := [2*i for i in 1..4]
+u3 := [2*i for i in 9 .. -9 by -2]
+u4 := [5*i for i in 20 .. -20 by -3 | bit?(i,2)]
+[3*i for i in u1 | not(i=11)]
+[u3.(2*i) for i in 1..3]
+[a+b for a in [1, 4, 0] for b in [2,5,7,9,11]]
+v1: List List I := [u1,u2]
+a1: Array List I := [u1,u2]
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Iterations}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{myverbatim}
+%3 >> macro I == MachineInteger;
+%4 >> import from I, List I;
+\end{myverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Loops}
+
+The general form of a loop is
+\begin{center}
+  \textit{Iterators} \texttt{repeat} \textit{Body}
+\end{center}
+Iterators could be \texttt{for} expressions \ldots
+\begin{myverbatim}
+%5 >> &for i in 3..6 repeat stdout << i << space
+3 4 5 6
+\end{myverbatim}
+\texttt{while} expressions \ldots
+\begin{myverbatim}
+%6 >> &k:=7; while k<20 repeat {k:=k+3; stdout << k << space}
+10 13 16 19 22
+\end{myverbatim}
+or a combination of them.
+\end{frame}
+\begin{myverbatim}
+%7 >> &for i in 1..20 | odd? i while i < 15 repeat stdout << i << space
+1 3 5 7 9 11 13
+%8 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Collections>>=
+aldor -gloop
+macro I == MachineInteger;
+import from I, List I;
+for i in 3..6 repeat stdout << i << space
+k := 7; while k < 20 repeat {k := k+3; stdout << k << space}
+for i in 1..20 | odd? i while i < 15 repeat stdout << i << space
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Generators}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Through the concept of a \texttt{Generator}, Aldor allows a uniform
+treatment of different data structures.
+\begin{myverbatim}
+%3 >> macro I == MachineInteger;
+%4 >> import from I, List I, Array I, HashTable(I, I);
+\end{myverbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Generator (Setup of data structures)}
+
+\begin{myverbatim}
+%5 >> &l: List I  := [2,5,7,22];
+[2,5,7,22] @ List(MachineInteger)
+
+%6 >> &a: Array I := [3,2];
+[3,2] @ Array(MachineInteger)
+
+%7 >> &h: HashTable(I, I) := table();
+[8] @ HashTable(MachineInteger, MachineInteger)
+
+%8 >> &h.4 := 3;
+3 @ MachineInteger
+
+%9 >> &h.(-88) := -2;
+-2 @ MachineInteger
+\end{myverbatim}
+\end{frame}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Generator (Uniform treatment)}
+
+\begin{myverbatim}
+%10 >> &for i in l         repeat stdout << i << space
+2 5 7 22
+
+%11 >> &for i in a         repeat stdout << i << space
+3 2
+
+%12 >> &for i in keys h    repeat stdout << i << space
+-88 4
+
+%13 >> &for i in entries h repeat stdout << i << space
+-2 3
+\end{myverbatim}
+\end{frame}
+\begin{comment}
+<<Generator>>=
+aldor -gloop
+macro I == MachineInteger;
+import from I;
+l: List I  := [2,5,7,22];
+a: Array I := [3,2];
+h: HashTable(I, I) := table();
+h.4 := 3;
+h.(-88) := -2;
+for i in l         repeat stdout << i << space
+for i in a         repeat stdout << i << space
+for i in keys h    repeat stdout << i << space
+for i in entries h repeat stdout << i << space
+@
+\end{comment}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Generator}
+
+Generators are normally used in \texttt{for} constructs.
+\begin{center}
+  \texttt{for} \textit{variable} \texttt{in} \textit{generator}
+\end{center}
+
+Generators can be seen as functions that yield a new (the next)
+value.
+
+\only<article>{They are created in the following way.}
+\begin{myverbatim}
+%14 >> &g1: Generator I := generate {yield 4; yield 2}
+%15 >> &g2: Generator I := generate {for i in g1 repeat {
+...    &     yield i; yield 0
+...    & }}
+%16 >> &for i in g2 repeat stdout << i << space
+4 0 2 0
+\end{myverbatim}
+
+\only<article>{And can be used like \ldots}
+\begin{myverbatim}
+%16 >> &for i in g2 repeat stdout << i << space
+4 0 2 0
+\end{myverbatim}
+\end{frame}
+Of course, there can be any program logic inside a \texttt{generate}
+expression. Evaluation stops temporarily if a \texttt{yield} statement
+is reached and is resumed at that place if the generator is asked for
+the next value.
+
+As anything else in Aldor, Generators are \emph{first class} values,
+i.e., they can be used as arguments to functions.
+For example, one could write a function that takes a function and a
+generator and returns a generator that generates elements where the
+given function is applied.
+\begin{myverbatim}
+%17 >> &map(f: I -> List I, g: Generator I): Generator List I == {
+...    &   f i for i in g  
+...    & }
+
+%18 >> &f1(n: I): List I == [n]
+%19 >> &f2(n: I): List I == [0 for i in 1..n]
+%20 >> &ll: List List I := [map(f1, g1)]
+[] @ List(List(MachineInteger))
+\end{myverbatim}
+Why do we get an empty list? We have already exhausted $g_1$ above by
+generating all elements of $g_2$. So there are no \emph{next} elements
+anymore.
+\begin{myverbatim}
+%21 >> [map(f1, generator l)]
+[[2],[5],[7],[22]] @ List(List(MachineInteger))
+
+%22 >> [map(f2, generator a)]
+[[0,0,0],[0,0]] @ List(List(MachineInteger))
+\end{myverbatim}
+
+
+\begin{comment}
+<<Generator>>=
+g1: Generator I := generate {yield 4; yield 2}
+g2: Generator I := generate {for i in g1 repeat {
+    yield i; yield 0
+}}
+for i in g2 repeat stdout << i << space
+map(f: I -> List I, g: Generator I): Generator List I == {
+  f i for i in g  
+}
+f1(n: I): List I == [n]
+f2(n: I): List I == [0 for i in 1..n]
+ll: List List I := [map(f1, g1)]
+[map(f1, generator l)]
+[map(f2, generator a)]
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Infinite Generators}
+
+A generator can generate infinitely many objects.
+\begin{myverbatim}
+%23 >> &g1 := generate repeat {yield 0; yield 1}
+
+%24 >> &for k in 1..5 for i in g1 repeat stdout << i << space
+0 1 0 1 0
+
+%25 >> &for k in l    for i in g1 repeat stdout << i << space
+1 0 1 0
+\end{myverbatim}
+\end{frame}
+\begin{comment}
+<<Generator>>=
+g1 := generate repeat {yield 0; yield 1}
+for k in 1..5 for i in g1 repeat stdout << i << space
+for k in l    for i in g1 repeat stdout << i << space
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Streams}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Stream}
+
+The Aldor library provides a container for infinite objects.
+\begin{myverbatim}
+%26 >> &s: Stream I := [g1]
+[...] @ Stream(MachineInteger)
+\end{myverbatim}
+Streams are lazy, i.e. they only compute values when values are
+needed.
+\begin{myverbatim}
+%26 >> &s.3
+0 @ MachineInteger
+
+%28 >> &s
+[1,0,1,0,...] @ Stream(MachineInteger)
+\end{myverbatim}
+Streams are like generators with memory.
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle<presentation>{Stream (cont.)}
+
+Of course, one can create functions that take such \emph{infinite}
+objects as arguments.
+\begin{myverbatim}
+%29 >> &fib(s: Stream I): Stream I == {
+...    &   stream( (i: I, t: Stream I): I +-> {
+...    &     i=0 or i=1 => s.i;
+...    &     t.(i-1) + t.(i-2) + s.i;
+...    &   })
+...    & }
+
+%30 >> &t := fib s
+[...] @ Stream(MachineInteger)
+%31 >> &t.9
+54 @ MachineInteger
+%32 >> &t
+[1,0,2,2,5,7,13,20,34,54,...] @ Stream(MachineInteger)
+\end{myverbatim}
+\end{frame}
+\begin{myverbatim}
+%14 >> &#quit
+\end{myverbatim}
+\begin{comment}
+<<Stream>>=
+fib(s: Stream I): Stream I == {
+  stream( (i: I, t: Stream I): I +-> {
+    i=0 or i=1 => s.i;
+    t.(i-1) + t.(i-2) + s.i;
+  })
+}
+t := fib s
+t.9
+t
+#quit
+@
+\end{comment}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}<presentation>
+  \frametitle{The End}
+  \begin{center}
+    \LARGE Thank you.
+  \end{center}
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
