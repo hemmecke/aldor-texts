@@ -9,7 +9,7 @@
 %% http://www.risc.jku.at/conferences/summer2007/
 
 %--rhx: Use 'make beamer' or 'make article' in order to compile this
-%--rhx: file. The MAKE command will provide an appropriate 
+%--rhx: file. The MAKE command will provide an appropriate
 %--rhx: '\documentclass' line, because we want to make an article or a
 %--rhx: beamer presentation out of this file.
 
@@ -24,6 +24,7 @@
 {
   \usepackage{hyperref}
   \usepackage{fullpage}
+  \parindent0pt
 }
 
 \usepackage[english]{babel}
@@ -35,7 +36,7 @@
 
 \author[Ralf Hemmecke]%
        {Ralf Hemmecke \\\footnotesize{\texttt{<ralf@hemmecke.org>}}}
-\date{14-Jun-2007\\
+\date{%
   \footnotesize{This work is licensed under CC-BY-SA-3.0.\\
     \url{http://creativecommons.org/licenses/by-sa/3.0/}}%
 }
@@ -132,6 +133,7 @@ Aldor and hosted at \url{http://www.aldor.org}.
   \item Axiom (1991)
   \item $\mathrm{A}^\sharp$ $\longrightarrow$ AxiomXL $\longrightarrow$ Aldor
   \item IBM $\longrightarrow$ NAG $\longrightarrow$ \texttt{www.aldor.org}
+  \item Aldor release under Apache License 2.0 (2013)
   \end{itemize}
 \end{frame}
 
@@ -158,7 +160,7 @@ Aldor and hosted at \url{http://www.aldor.org}.
   \begin{itemize}
   \item Aldor is an ordinary programming language.
   \item design goals: generality, composability, efficiency
-  \item combines object-oriented and functional programming styles 
+  \item combines object-oriented and functional programming styles
   \item emphasis on uniform handling of functions and types,\\
     types and functions are \alert{first class}, i.e.:
     \begin{itemize}
@@ -262,11 +264,35 @@ Aldor and hosted at \url{http://www.aldor.org}.
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Starting and Stopping the Interpreter}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Default start of the (interpreted) loop provided by the compiler.
+\begin{myverbatim}
+> &aldor -gloop
+%1 >> &#include "aldor"
+%1 >> &#include "aldorinterp"
+\end{myverbatim}
+%
+One quits the interpreter as follows.
+\begin{myverbatim}
+%3 >> &#quit
+\end{myverbatim}
 
+Watch at the line numbers below. If they start from \verb'%3' again,
+the loop has been restarted.
 
-
-
+Put the lines
+\begin{myverbatim}
+#include "aldor"
+#include "aldorinterp"
+\end{myverbatim}
+into a file \texttt{aldorinit.as} in the current directory. It is
+automatically loaded whenever you start.
+\begin{myverbatim}
+> &aldor -gloop
+\end{myverbatim}
 
 
 
@@ -282,9 +308,6 @@ Aldor and hosted at \url{http://www.aldor.org}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Object Level}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{myverbatim}
-> aldor -gloop
-\end{myverbatim}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]
@@ -303,6 +326,8 @@ Defined pred @ (n: MachineInteger) -> MachineInteger
 \end{myverbatim}
 In contrast to variable assignment (\texttt{:=}), the double equals
 sign (\texttt{==}) defines constants.
+\only<article>{An expression of the form \texttt{(a:A):B+->...} is an
+anonymous function or lambda expression.}
 \end{frame}
 
 
@@ -494,9 +519,6 @@ Defined fib @ (n: MachineInteger) -> MachineInteger
 8 @ MachineInteger
 \end{myverbatim}
 \end{frame}
-\begin{myverbatim}
-%19 >> &#quit
-\end{myverbatim}
 \begin{comment}
 <<Functions>>=
 aldor -gloop
@@ -546,19 +568,21 @@ fib 5
   \frametitle<presentation>{Functions as arguments}
   Functions can be arguments to other functions.
 \begin{myverbatim}
-> &aldor -gloop
 %3 >> &baz(
 ...   &    f: MachineInteger -> MachineInteger,
 ...   &    n: MachineInteger
 ...   &  ): MachineInteger == {
 ...   &    f f n
 ...   &  }
-Defined baz @ (f: MachineInteger -> MachineInteger, 
+Defined baz @ (f: MachineInteger -> MachineInteger,
 n: MachineInteger) -> MachineInteger
 \end{myverbatim}
 \only<article>{If the interpreter detects that a line is incomplete
   after pressing ENTER, e.g. there are open parentheses that are not
   closed, then it continues the current line by showing three dots.}
+
+\only<article>{\texttt{MachineInteger} is the type of machine size
+  integers, i.e. 32 or 64 bits depending on the underlying machine.}
 
 \begin{myverbatim}
 %4 >> &import from MachineInteger
@@ -566,9 +590,7 @@ n: MachineInteger) -> MachineInteger
 720 @ MachineInteger
 \end{myverbatim}
 \end{frame}
-\begin{myverbatim}
-%7 >> &#quit
-\end{myverbatim}
+
 \begin{comment}
 <<Functions2>>=
 aldor -gloop
@@ -623,9 +645,7 @@ baz(factorial, 3)
 3 @ MachineInteger
 \end{myverbatim}
 \end{frame}
-\begin{myverbatim}
-%12 >> &#quit
-\end{myverbatim}
+
 \begin{comment}
 <<Functions3>>=
 aldor -gloop
@@ -665,6 +685,8 @@ bar 1
 \begin{frame}
   \frametitle{Algebraic Structures}
 
+\only<article>{Aldor categories are modelled after algebraic structures.}
+
   \begin{itemize}
   \item Semigroup: $(H, +)$
   \item Monoid: $(M, (+, 0))$
@@ -677,6 +699,8 @@ bar 1
   \item Universal Algebra: $(A, (f_i)_{i\in I})$ where $f_i: A^{n_i}\to A$
   \item Multisorted Algebra: $((A_j)_{j\in J}, (g_i)_{i\in I})$
   \end{itemize}
+\only<article>{In fact, Aldor categories can be seen as multisorted
+  algebras.}
 \end{frame}
 
 
@@ -687,6 +711,16 @@ bar 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]
   \frametitle<presentation>{Example: Aldor Domain}
+
+  \only<article>{And Aldor category is the type of an Aldor domain.}
+
+  \only<article>{The \texttt{with}-part in the following Aldor domain
+    definition is an Aldor category and specifies the interface of the
+    domain.}
+
+  \only<article>{The \texttt{add}-part denotes an implementation of a
+    domain.}
+
 \begin{myverbatim2}
 Int: with {
   &+: (%, %) -> %;&
@@ -704,6 +738,11 @@ Int: with {
 \item $\verb'Int'=(\verb'%', \textcolor{red}{(+, 0, 1)})$
 \item $\verb'Rep'=((\verb'Integer',\verb'Boolean'), (+, -, \cdot, 0, 1, \ldots))$
 \end{itemize}
+
+\only<article>{In fact, the \texttt{add}-part alone is already a
+  domain, an \emph{anonymous} domain. This is quite similar to an
+  anonymous functions (see above). Functions and domains are first
+  class values and can be used in arguments to functions.}
 \end{frame}
 
 
@@ -721,7 +760,9 @@ Int: with {
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]
-  \frametitle<presentation>{Example: Aldor Domain}
+  \frametitle<presentation>{Extending an Aldor Domain}
+\only<article>{Suppose we have the following domain definition with 4
+  exported functions.}
 \begin{myverbatim2}
 MyInt: with {
   &+: (%, %) -> %;&
@@ -739,7 +780,8 @@ MyInt: with {
 \end{myverbatim2}
 \end{frame}
 
-
+\only<article>{Aldor allows to add new functionality to a domain
+  without recompiling the initial domain.}
 
 
 
@@ -768,6 +810,8 @@ extend MyInt: with {
 \end{itemize}
 \end{frame}
 
+\only<article>{This post-facto extension mechanism is useful for cases
+  where a library defined domain lacks certain functionality.}
 
 
 
@@ -781,29 +825,93 @@ extend MyInt: with {
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{comment}
-%\begin{frame}[fragile]
-\frametitle{Post-facto Extensions}
 \begin{itemize}
 \item Domains can later be extended to belong to a new category.
 \item Demonstrate with \verb'Integer' in \verb'aldor -gloop' with
   libaldor and libalgebra.
-%\begin{smallverbatim}
+\begin{comment}
 aldor -gloop                     aldor -gloop
 #include "aldor"                 #include "algebra"
 #include "aldorinterp"           #include "aldorinterp"
 Integer has Monoid               Integer has Monoid
 Integer                          Integer
 #quit                            #quit
-%\end{smallverbatim}
-\end{itemize}
-%\end{frame}
 \end{comment}
+\end{itemize}
 
 
+\begin{smallverbatim}
+>aldor -gloop
+Aldor
 
+Copyright (c) 1990-2007 Aldor Software Organization Ltd (Aldor.org).
 
+Release: Aldor(C) version 1.2.-1 for LINUX(glibc2.10+) (debug version)
+Type "#int help" for more details.
+%1 >> #include "aldor"
+                                           Comp: 30 msec, Interp: 10 msec
+%2 >> #include "aldorinterp"
+                                           Comp: 10 msec, Interp: 0 msec
+%3 >> Integer has Monoid
+      ............^
+[L3 C13] #1 (Error) No meaning for identifier `Monoid'.
 
+%4 >> Integer
+  () @ Join(
+PrimitiveType with
+        coerce: BInt -> %
+        coerce: % -> BInt
+    ==  add ()
+,
+IntegerType with export to IntegerSegment(%)
+    ==  add ()
+)
+                                           Comp: 0 msec, Interp: 0 msec
+%5 >> #quit
+\end{smallverbatim}
+
+The identifier \texttt{Monoid} was not yet defined in LibAldor. This
+is only done in LibAlgebra. The LibAlgebra library extends
+\texttt{Integer} with more functionality.
+
+\begin{smallverbatim}
+>aldor -gloop
+Aldor
+
+Copyright (c) 1990-2007 Aldor Software Organization Ltd (Aldor.org).
+
+Release: Aldor(C) version 1.2.-1 for LINUX(glibc2.10+) (debug version)
+Type "#int help" for more details.
+%1 >> #include "algebra"
+                                           Comp: 130 msec, Interp: 0 msec
+%2 >> #include "aldorinterp"
+                                           Comp: 20 msec, Interp: 0 msec
+%3 >> Integer has Monoid
+Unhandled Exception: RuntimeError()
+Circular get broken
+ @ Boolean
+                                           Comp: 0 msec, Interp: 90 msec
+%4 >> Integer
+ @ Join(
+PrimitiveType with
+        coerce: BInt -> %
+        coerce: % -> BInt
+    ==  add ()
+,
+IntegerType with export to IntegerSegment(%)
+    ==  add ()
+,
+IntegerCategory with
+    ==  add ()
+,
+UnivariateGcdRing with
+    ==  add ()
+,
+FactorizationRing with
+    ==  add ()
+)
+                                           Comp: 0 msec, Interp: 0 msec
+\end{smallverbatim}
 
 
 
@@ -909,7 +1017,8 @@ ComplexDomain: ComplexCategory == add {
 \end{myverbatim}
 \end{frame}
 
-
+The the function \texttt{im} from \texttt{ComplexDomain} is not
+visible outside the \texttt{add}-part.
 
 
 
@@ -940,11 +1049,13 @@ MyComplex: ComplexCategory == Integer add {
   Rep == Integer;
   import from Rep;
   re(a: %): Integer == rep(a);
-}  
+}
 \end{myverbatim}
 \end{frame}
 
-
+The domain \texttt{MyComplex} exports only \texttt{0} and \texttt{re},
+even though the domain \texttt{Integer} (from which it inherits the
+implementation of \texttt{0}) has a lot more exports.
 
 
 
@@ -1005,8 +1116,8 @@ define PrimitiveType: Category == with {
 \end{myverbatim}
 \end{frame}
 
-
-
+Categories may contain default implementations for code that can be
+implemented without knowing an explicit representation.
 
 
 
@@ -1044,6 +1155,9 @@ Partial(T:Type): with {
 \end{myverbatim}
 \end{frame}
 
+Aldor allows to export certain functionality under conditions that are
+evaluated at instantiation time of the domain, i.e., when all
+parameters of the domain are explicitly known.
 
 
 
@@ -1096,7 +1210,9 @@ stdout << mygcd(Q)(4::Q,6::Q) << newline;
 \end{myverbatim}
 \end{frame}
 
-
+In the above example \texttt{mygcd} is a function that takes a
+\texttt{EuclideanDomain} $R$ as input and returns a function $R\times
+R \to R$ as output.
 
 
 
@@ -1109,6 +1225,9 @@ stdout << mygcd(Q)(4::Q,6::Q) << newline;
 \begin{frame}[fragile]
 \frametitle{Recursively Defined Domain-valued Functions}
 
+\only<article>{Not only functions can be defined recursively, but also
+domains.}
+
 Example from Aldor-Combinat:
 
 \begin{myverbatim2}
@@ -1117,7 +1236,21 @@ egs := generatingSeries $ T(Integer);
 n := count(egs, 5);
 \end{myverbatim2}%$
 
-Can define mutually recursive types
+\only<article>{This example demonstrates the definition of a binary
+  tree domain with only leaf nodes. A tree is either a single node
+  ($X$) or (\texttt{+}) it is a pair (\texttt{*}) of two trees. The
+  type $L$ serves as a type of labels.}
+
+\only<article>{In Aldor-Combinat, there are appropriate definitions
+  for (\texttt{+}) and (\texttt{*}), so that they can be used to add
+  and multiply domains.}
+
+\only<article>{The recursive domain definition leads to a definition
+  of the generating series for such trees whose coefficients count the
+  number of trees.}
+
+Can define mutually recursive types.
+
 \begin{myverbatim2}
 &A&(L: LT): CS L == (&E + X*B*B*B&)(L) add;
 &B&(L: LT): CS L == (&E + X*A*A&)(L) add;
@@ -1125,6 +1258,8 @@ ogs: isomorphismTypeGeneratingSeries $ A(String);
 m := count(ogs, 6);
 \end{myverbatim2}%$
 
+\only<article>{Again the generating series is automatically defined by
+  the (mutually recursive) domain definition.}
 
 \end{frame}
 
@@ -1163,7 +1298,7 @@ m := count(ogs, 6);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 There are already some collections implemented in the Aldor library,
-for example, 
+for example,
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1179,7 +1314,12 @@ for example,
 \end{frame}
 
 
+All the above types are defined through the Aldor library. While
+\texttt{List} is a simply linked list, \texttt{PrimitiveArray} is a
+contiguous block of memory in which the elements are stored.
 
+Whereas \texttt{Array} knows about its size and thus allows for bound
+checking, \texttt{PrimiteveArray} does not.
 
 
 
@@ -1280,9 +1420,6 @@ One can also have arrays of lists.
 \end{myverbatim}
 Note that elements in the list must have the same type.
 \end{frame}
-\begin{myverbatim}
-%14 >> &#quit
-\end{myverbatim}
 \begin{comment}
 <<Collections>>=
 aldor -gloop
@@ -1348,7 +1485,6 @@ or a combination of them.
 \begin{myverbatim}
 %7 >> &for i in 1..20 | odd? i while i < 15 repeat stdout << i << space
 1 3 5 7 9 11 13
-%8 >> &#quit
 \end{myverbatim}
 \begin{comment}
 <<Collections>>=
@@ -1514,7 +1650,7 @@ generator and returns a generator that generates elements where the
 given function is applied.
 \begin{myverbatim}
 %17 >> &map(f: I -> List I, g: Generator I): Generator List I == {
-...    &   f i for i in g  
+...    &   f i for i in g
 ...    & }
 
 %18 >> &f1(n: I): List I == [n]
@@ -1542,7 +1678,7 @@ g2: Generator I := generate {for i in g1 repeat {
 }}
 for i in g2 repeat stdout << i << space
 map(f: I -> List I, g: Generator I): Generator List I == {
-  f i for i in g  
+  f i for i in g
 }
 f1(n: I): List I == [n]
 f2(n: I): List I == [0 for i in 1..n]
@@ -1635,16 +1771,16 @@ for k in l    for i in g1 repeat stdout << i << space
 
 The Aldor library provides a container for infinite objects.
 \begin{myverbatim}
-%26 >> &s: Stream I := [g1]
+%26 >> &mystream: Stream I := [g1]
 [...] @ Stream(MachineInteger)
 \end{myverbatim}
 Streams are lazy, i.e. they only compute values when values are
 needed.
 \begin{myverbatim}
-%26 >> &s.3
+%26 >> &mystream.3
 0 @ MachineInteger
 
-%28 >> &s
+%28 >> &mystream
 [1,0,1,0,...] @ Stream(MachineInteger)
 \end{myverbatim}
 Streams are like generators with memory.
@@ -1675,7 +1811,7 @@ objects as arguments.
 ...    &   })
 ...    & }
 
-%30 >> &t := fib s
+%30 >> &t := fib mystream
 [...] @ Stream(MachineInteger)
 %31 >> &t.9
 54 @ MachineInteger
@@ -1683,9 +1819,10 @@ objects as arguments.
 [1,0,2,2,5,7,13,20,34,54,...] @ Stream(MachineInteger)
 \end{myverbatim}
 \end{frame}
-\begin{myverbatim}
-%14 >> &#quit
-\end{myverbatim}
+The above definition of \texttt{fib} is quite involved.
+It takes a stream as input and returns a stream as output whose first
+two entries are identical and whose other entries are given through a
+sum of three elements (see above).
 \begin{comment}
 <<Stream>>=
 fib(s: Stream I): Stream I == {
@@ -1694,7 +1831,7 @@ fib(s: Stream I): Stream I == {
     t.(i-1) + t.(i-2) + s.i;
   })
 }
-t := fib s
+t := fib mystream
 t.9
 t
 #quit
